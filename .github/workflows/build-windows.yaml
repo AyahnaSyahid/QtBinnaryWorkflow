@@ -20,9 +20,33 @@ jobs:
           choco install tar
           choco install python
 
+      - name: Cache Qt 5.15.16 source
+        id: cache-qt
+        uses: actions/cache@v3
+        with:
+          path: qt-everywhere-opensource-src-5.15.16.tar.xz
+          key: ${{ runner.os }}-qt-5.15.16
+          restore-keys: |
+            ${{ runner.os }}-qt-5.15.16
+
       - name: Download Qt 5.15.16 source
+        if: steps.cache-qt.outputs.cache-hit != 'true'
         run: |
-          wget https://mirrors.cloud.tencent.com/qt/archive/qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
+          wget https://sourceforge.net/projects/qt/files/Qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
+          wget https://sourceforge.net/projects/qt/files/Qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz.md5
+
+      - name: Verify MD5 checksum
+        if: steps.cache-qt.outputs.cache-hit != 'true'
+        run: |
+          certutil -hashfile qt-everywhere-opensource-src-5.15.16.tar.xz MD5 > downloaded.md5
+          echo "Expected MD5:"
+          type qt-everywhere-opensource-src-5.15.16.tar.xz.md5
+          echo "Downloaded MD5:"
+          type downloaded.md5
+          fc /B qt-everywhere-opensource-src-5.15.16.tar.xz.md5 downloaded.md5 || exit 1
+
+      - name: Extract Qt 5.15.16 source
+        run: |
           tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
 
       - name: Download OpenSSL source
