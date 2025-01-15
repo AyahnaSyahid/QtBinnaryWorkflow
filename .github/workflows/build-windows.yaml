@@ -14,9 +14,9 @@ jobs:
 
       - name: Install MinGW-w64 and dependencies
         run: |
+          choco install wget
           choco install mingw --version 8.1.0
           choco install make
-          choco install wget
           choco install 7zip
           choco install python
           
@@ -28,16 +28,16 @@ jobs:
         id: cache-qt
         uses: actions/cache@v3
         with:
-          path: qt-everywhere-opensource-src-5.15.16
-          key: qt-5.15.16-${{ runner.os }}
+          path: qt-everywhere-opensource-src-5.15.16.tar.xz
+          key: qt-5.15.16-source
           restore-keys: |
-            qt-5.15.16
+            qt-5.15.16-source
 
-      - name: Download Qt 5.15.16 source
-        if: steps.cache-qt.outputs.cache-hit != 'true'
-        run: |
-          wget https://ftp.jaist.ac.jp/pub/qtproject/archive/qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
-          echo "2a25d4e90abd05284bf5bb01365c9b44  qt-everywhere-opensource-src-5.15.16.tar.xz" > qt-everywhere-opensource-src-5.15.16.tar.xz.md5
+      # - name: Download Qt 5.15.16 source
+      #   if: steps.cache-qt.outputs.cache-hit != 'true'
+      #   run: |
+      #     wget https://ftp.jaist.ac.jp/pub/qtproject/archive/qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
+      #     echo "2a25d4e90abd05284bf5bb01365c9b44  qt-everywhere-opensource-src-5.15.16.tar.xz" > qt-everywhere-opensource-src-5.15.16.tar.xz.md5
 
       - name: Verify MD5 checksum
         if: steps.cache-qt.outputs.cache-hit != 'true'
@@ -54,13 +54,13 @@ jobs:
       #   run: |
       #     tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
 
-      - name: Cache OpenSSL
-        uses: actions/cache@v3
-        with:
-          path: C:/openssl
-          key: openssl-1.1.1l-${{ runner.os }}
-          restore-keys: |
-            openssl-1.1.1l
+      # - name: Cache OpenSSL
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: C:/openssl
+      #     key: openssl-1.1.1l
+      #     restore-keys: |
+      #       openssl-1.1.1l
 
       - name: Download OpenSSL source
         run: |
@@ -70,7 +70,7 @@ jobs:
       - name: Build static OpenSSL
         run: |
           cd openssl-1.1.1l
-          perl Configure mingw64 no-shared --prefix=C:/openssl
+          perl Configure mingw64 no-shared --prefix=C:\openssl
           make
           make install
           cd ..
@@ -79,12 +79,12 @@ jobs:
         run: |
           mkdir qt-build-rel
           cd qt-build-rel
-          ../qt-everywhere-opensource-src-5.15.16/configure -prefix C:/Qt/5.15.16 \
-                      -opensource \
-                      -nomake examples \
-                      -nomake tests \
-                      -openssl-linked \
-                      -I C:/openssl/include \
+          ..\qt-everywhere-opensource-src-5.15.16\configure -prefix C:/Qt/5.15.16 `
+                      -opensource `
+                      -nomake examples `
+                      -nomake tests `
+                      -openssl-linked `
+                      -I C:/openssl/include `
                       -L C:/openssl/lib
           mingw32-make -j$(Get-ProcessorCount)
           mingw32-make install
@@ -94,14 +94,14 @@ jobs:
         run: |
           mkdir qt-build-debug
           cd qt-build-debug
-          ../qt-everywhere-opensource-src-5.15.16/configure -prefix C:/Qt/5.15.16 \
-                      -opensource \
-                      -nomake examples \
-                      -nomake tests \
-                      -openssl-linked \
-                      -I C:/openssl/include \
-                      -L C:/openssl/lib \
-                      -qtlibinfix d \
+          ../qt-everywhere-opensource-src-5.15.16/configure -prefix C:/Qt/5.15.16 `
+                      -opensource `
+                      -nomake examples `
+                      -nomake tests `
+                      -openssl-linked `
+                      -I C:/openssl/include `
+                      -L C:/openssl/lib `
+                      -qtlibinfix d `
                       -debug
           mingw32-make -j$(Get-ProcessorCount)
           mingw32-make install
@@ -109,7 +109,7 @@ jobs:
           
       - name: Compress build artifact with high compression
         run: |
-          7z a -t7z -mx=9 Qt_5.15.16_Build.7z C:/Qt/*
+          7z a -t7z -mx=9 Qt_5.15.16_Build.7z C:\Qt\*
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
