@@ -1,0 +1,41 @@
+name: Cache OpenSSL
+
+on:
+  workflow_dispatch:  # Trigger manually from GitHub UI
+
+jobs:
+  cache-openssl:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: |
+          choco install wget
+          choco install 7zip
+          choco install make
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+
+      - name: Cache OpenSSL
+        uses: actions/cache@v3
+        with:
+          path: C:/openssl
+          key: openssl-1.1.1l-${{ runner.os }}
+          restore-keys: |
+            openssl-1.1.1l
+
+      - name: Download OpenSSL source
+        if: steps.cache-openssl.outputs.cache-hit != 'true'
+        run: |
+          wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz
+          tar -xvf openssl-1.1.1l.tar.gz
+
+      - name: Build static OpenSSL
+        run: |
+          cd openssl-1.1.1l
+          perl Configure mingw64 no-shared --prefix=C:/openssl
+          make
+          make install
+          cd ..
