@@ -20,6 +20,9 @@ jobs:
           choco install tar
           choco install python
 
+      - name: Refresh environment variables
+        run: refreshenv
+      
       - name: Cache Qt 5.15.16 source
         id: cache-qt
         uses: actions/cache@v3
