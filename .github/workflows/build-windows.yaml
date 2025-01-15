@@ -24,11 +24,10 @@ jobs:
         id: cache-qt
         uses: actions/cache@v3
         with:
-          path: qt-everywhere-opensource-src-5.15.16.tar.xz
-          key: qt-5.15.16
+          path: qt-everywhere-opensource-src-5.15.16
+          key: qt-5.15.16-${{ runner.os }}
           restore-keys: |
             qt-5.15.16
-          enableCrossOsArchive: true
 
       - name: Download Qt 5.15.16 source
         if: steps.cache-qt.outputs.cache-hit != 'true'
@@ -39,16 +38,20 @@ jobs:
       - name: Verify MD5 checksum
         if: steps.cache-qt.outputs.cache-hit != 'true'
         run: |
-          certutil -hashfile qt-everywhere-opensource-src-5.15.16.tar.xz MD5 > downloaded.md5
-          echo "Expected MD5:"
-          type qt-everywhere-opensource-src-5.15.16.tar.xz.md5
-          echo "Downloaded MD5:"
-          type downloaded.md5
-          cmd /c fc /B downloaded.md5 qt-everywhere-opensource-src-5.15.16.tar.xz.md5 || exit 1
+          certutil -hashfile qt-everywhere-opensource-src-5.15.16.tar.xz MD5 | findstr /i "2a25d4e90abd05284bf5bb01365c9b44"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
       - name: Extract Qt 5.15.16 source
         run: |
           tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
+
+      - name: Cache OpenSSL
+        uses: actions/cache@v3
+        with:
+          path: C:/openssl
+          key: openssl-1.1.1l-${{ runner.os }}
+          restore-keys: |
+            openssl-1.1.1l
 
       - name: Download OpenSSL source
         run: |
@@ -74,7 +77,7 @@ jobs:
                       -openssl-linked \
                       -I C:/openssl/include \
                       -L C:/openssl/lib
-          mingw32-make -j$(nproc)
+          mingw32-make -j$(Get-ProcessorCount)
           mingw32-make install
           cd ..
 
@@ -91,9 +94,10 @@ jobs:
                       -L C:/openssl/lib \
                       -qtlibinfix d \
                       -debug
-          mingw32-make -j$(nproc)
+          mingw32-make -j$(Get-ProcessorCount)
           mingw32-make install
           cd ..
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
