@@ -14,18 +14,15 @@ jobs:
       - name: Install Dependencies
         run: |
           choco install wget
-          choco install 7zip
-          choco install python
-          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 
       - name: Cache Qt 5.15.16 source
         id: cache-qt
         uses: actions/cache@v3
         with:
-          path: qt-everywhere-opensource-src-5.15.16
-          key: qt-5.15.16-${{ runner.os }}
+          path: qt-everywhere-opensource-src-5.15.16.tar.xz
+          key: qt-5.15.16-source
           restore-keys: |
-            qt-5.15.16
+            qt-5.15.16-source
 
       - name: Download Qt 5.15.16 source
         if: steps.cache-qt.outputs.cache-hit != 'true'
@@ -34,8 +31,3 @@ jobs:
           echo "2a25d4e90abd05284bf5bb01365c9b44  qt-everywhere-opensource-src-5.15.16.tar.xz" > qt-everywhere-opensource-src-5.15.16.tar.xz.md5
           certutil -hashfile qt-everywhere-opensource-src-5.15.16.tar.xz MD5 | findstr /i "2a25d4e90abd05284bf5bb01365c9b44"
           if ($LASTEXITCODE -ne 0) { exit 1 }
-
-      - name: Extract Qt source with 7-Zip
-        run: |
-          7z e qt-everywhere-opensource-src-5.15.16.tar.xz
-          7z x qt-everywhere-opensource-src-5.15.16.tar
