@@ -17,9 +17,9 @@ jobs:
           choco install mingw --version 8.1.0
           choco install make
           choco install wget
-          choco install tar
+          choco install 7zip
           choco install python
-
+          
       - name: Refresh environment variables
         run: |
           Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
@@ -44,10 +44,15 @@ jobs:
         run: |
           certutil -hashfile qt-everywhere-opensource-src-5.15.16.tar.xz MD5 | findstr /i "2a25d4e90abd05284bf5bb01365c9b44"
           if ($LASTEXITCODE -ne 0) { exit 1 }
-
-      - name: Extract Qt 5.15.16 source
+      
+      - name: Extract Qt source with 7-Zip
         run: |
-          tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
+          7z e qt-everywhere-opensource-src-5.15.16.tar.xz
+          7z x qt-everywhere-opensource-src-5.15.16.tar
+
+      # - name: Extract Qt 5.15.16 source
+      #   run: |
+      #     tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
 
       - name: Cache OpenSSL
         uses: actions/cache@v3
@@ -101,9 +106,13 @@ jobs:
           mingw32-make -j$(Get-ProcessorCount)
           mingw32-make install
           cd ..
+          
+      - name: Compress build artifact with high compression
+        run: |
+          7z a -t7z -mx=9 Qt_5.15.16_Build.7z C:/Qt/*
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Build
-          path: C:/Qt/*
+          name: Qt-5.15.16-Build
+          path: Qt_5.15.16_Build.7z
