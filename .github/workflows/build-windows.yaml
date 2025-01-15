@@ -44,7 +44,7 @@ jobs:
           type qt-everywhere-opensource-src-5.15.16.tar.xz.md5
           echo "Downloaded MD5:"
           type downloaded.md5
-          fc /B qt-everywhere-opensource-src-5.15.16.tar.xz.md5 downloaded.md5 || exit 1
+          fc /B downloaded.md5 qt-everywhere-opensource-src-5.15.16.tar.xz.md5 || exit 1
 
       - name: Extract Qt 5.15.16 source
         run: |
