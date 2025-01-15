@@ -25,15 +25,16 @@ jobs:
         uses: actions/cache@v3
         with:
           path: qt-everywhere-opensource-src-5.15.16.tar.xz
-          key: ${{ runner.os }}-qt-5.15.16
+          key: qt-5.15.16
           restore-keys: |
-            ${{ runner.os }}-qt-5.15.16
+            qt-5.15.16
+          enableCrossOsArchive: true
 
       - name: Download Qt 5.15.16 source
         if: steps.cache-qt.outputs.cache-hit != 'true'
         run: |
-          wget https://sourceforge.net/projects/qt/files/Qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
-          wget https://sourceforge.net/projects/qt/files/Qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz.md5
+          wget https://ftp.jaist.ac.jp/pub/qtproject/archive/qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
+          echo "2a25d4e90abd05284bf5bb01365c9b44  qt-everywhere-opensource-src-5.15.16.tar.xz" > qt-everywhere-opensource-src-5.15.16.tar.xz.md5
 
       - name: Verify MD5 checksum
         if: steps.cache-qt.outputs.cache-hit != 'true'
