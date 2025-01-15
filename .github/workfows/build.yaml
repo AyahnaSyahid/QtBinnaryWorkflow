@@ -1,0 +1,124 @@
+name: Build Qt 5.15.16
+
+on:
+  workflow_dispatch:  # Trigger manually from GitHub UI
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04  # Use Ubuntu 22.04 runner for MX-Linux 21 equivalent
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies for Ubuntu
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential perl python3 git g++ pkg-config \
+          libssl-dev libpng-dev libjpeg-dev libfreetype6-dev \
+          libglib2.0-dev libx11-dev libxcb1-dev libfontconfig1-dev \
+          libsqlite3-dev
+
+      - name: Download Qt 5.15.16 source
+        run: |
+          wget https://mirrors.cloud.tencent.com/qt/archive/qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
+          tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
+
+      - name: Build static OpenSSL
+        run: |
+          wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz
+          tar -xvf openssl-1.1.1l.tar.gz
+          cd openssl-1.1.1l
+          ./config no-shared no-dso --prefix=/usr/local/openssl
+          make
+          sudo make install
+
+      - name: Configure and build Qt (Release)
+        run: |
+          cd qt-everywhere-opensource-src-5.15.16
+          ./configure -prefix /usr/local/qt5.15.16 \
+                      -opensource \
+                      -nomake examples \
+                      -nomake tests \
+                      -openssl-linked \
+                      -static \
+                      -I /usr/local/openssl/include \
+                      -L /usr/local/openssl/lib
+          make -j$(nproc)
+          sudo make install
+
+      - name: Configure and build Qt (Debug)
+        run: |
+          cd qt-everywhere-opensource-src-5.15.16
+          ./configure -prefix /usr/local/qt5.15.16-debug \
+                      -opensource \
+                      -nomake examples \
+                      -nomake tests \
+                      -openssl-linked \
+                      -static \
+                      -I /usr/local/openssl/include \
+                      -L /usr/local/openssl/lib \
+                      -debug
+          make -j$(nproc)
+          sudo make install
+
+  build-windows:
+    runs-on: windows-latest  # Windows 7 build using MinGW 64-bit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install MinGW-w64 and dependencies
+        run: |
+          choco install mingw --version 8.1.0
+          choco install make
+          choco install wget
+          choco install tar
+          choco install python
+
+      - name: Download Qt 5.15.16 source
+        run: |
+          wget https://mirrors.cloud.tencent.com/qt/archive/qt/5.15/5.15.16/single/qt-everywhere-opensource-src-5.15.16.tar.xz
+          tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
+
+      - name: Download OpenSSL source
+        run: |
+          wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz
+          tar -xvf openssl-1.1.1l.tar.gz
+
+      - name: Build static OpenSSL
+        run: |
+          cd openssl-1.1.1l
+          perl Configure mingw64 no-shared --prefix=C:/openssl
+          make
+          make install
+
+      - name: Configure and build Qt (Release)
+        run: |
+          cd qt-everywhere-opensource-src-5.15.16
+          ./configure -prefix C:/Qt/5.15.16 \
+                      -opensource \
+                      -nomake examples \
+                      -nomake tests \
+                      -openssl-linked \
+                      -static \
+                      -I C:/openssl/include \
+                      -L C:/openssl/lib
+          mingw32-make -j$(nproc)
+          mingw32-make install
+
+      - name: Configure and build Qt (Debug)
+        run: |
+          cd qt-everywhere-opensource-src-5.15.16
+          ./configure -prefix C:/Qt/5.15.16-debug \
+                      -opensource \
+                      -nomake examples \
+                      -nomake tests \
+                      -openssl-linked \
+                      -static \
+                      -I C:/openssl/include \
+                      -L C:/openssl/lib \
+                      -debug
+          mingw32-make -j$(nproc)
+          mingw32-make install
