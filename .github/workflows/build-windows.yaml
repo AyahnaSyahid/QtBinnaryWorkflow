@@ -7,7 +7,9 @@ jobs:
   
   build-windows:
     runs-on: windows-latest  # Windows 7 build using MinGW 64-bit
-
+    defaults:
+      run:
+        shell: cmd
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -22,7 +24,7 @@ jobs:
           
       - name: Refresh environment variables
         run: |
-          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          refreshenv
       
       - name: Cache Qt 5.15.16 source
         id: cache-qt
