@@ -21,7 +21,8 @@ jobs:
           choco install python
 
       - name: Refresh environment variables
-        run: refreshenv
+        run: |
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
       
       - name: Cache Qt 5.15.16 source
         id: cache-qt
