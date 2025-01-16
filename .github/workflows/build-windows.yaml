@@ -21,7 +21,6 @@ jobs:
           choco install make
           choco install 7zip
           choco install python
-          choco install strawberryperl
           
       - name: Refresh environment variables
         run: |
@@ -52,7 +51,7 @@ jobs:
         run: |
           echo "Check dir structure before extract tar.xz"
           dir
-          "C:\Program Files\Git\usr\bin\tar.exe" -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
+          "C:\Program Files\Git\usr\bin\tar.exe" -xf qt-everywhere-opensource-src-5.15.16.tar.xz
           echo "Check dir structure before extract tar.xz"
           dir
 
@@ -68,24 +67,24 @@ jobs:
       #     restore-keys: |
       #       openssl-1.1.1l
 
-      - name: Download OpenSSL source
-        run: |
-          echo "Check dir structure before dld openssl"
-          dir
-          wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz
-          echo "Check dir structure after dld openssl"
-          dir
-          "C:\Program Files\Git\usr\bin\tar.exe" -xvf openssl-1.1.1l.tar.gz
-          echo "Check dir structure after extract openssl"
-          dir
+      # - name: Download OpenSSL source
+      #   run: |
+      #     echo "Check dir structure before dld openssl"
+      #     dir
+      #     wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz
+      #     echo "Check dir structure after dld openssl"
+      #     dir
+      #     "C:\Program Files\Git\usr\bin\tar.exe" -xf openssl-1.1.1l.tar.gz
+      #     echo "Check dir structure after extract openssl"
+      #     dir
 
-      - name: Build static OpenSSL
-        run: |
-          cd openssl-1.1.1l
-          perl Configure mingw64 no-shared --prefix=C:\openssl
-          make
-          make install
-          cd ..
+      # - name: Build static OpenSSL
+      #   run: |
+      #     cd openssl-1.1.1l
+      #     perl Configure mingw64 no-shared --prefix=C:\openssl
+      #     make
+      #     make install
+      #     cd ..
 
       - name: Configure and build Qt (Release)
         run: |
@@ -93,7 +92,7 @@ jobs:
           dir
           mkdir qt-build-rel
           cd qt-build-rel
-          ..\qt-everywhere-opensource-src-5.15.16\configure.bat -prefix C:/Qt/5.15.16 -opensource -nomake examples -nomake tests -openssl-linked -I C:/openssl/include -L C:/openssl/lib
+          ..\qt-everywhere-src-5.15.16\configure.bat -prefix C:\Qt\5.15.16 -opensource -nomake examples -nomake tests
           mingw32-make -j
           mingw32-make install
           cd ..
@@ -104,7 +103,7 @@ jobs:
         run: |
           mkdir qt-build-debug
           cd qt-build-debug
-          ../qt-everywhere-opensource-src-5.15.16/configure.bat -prefix C:/Qt/5.15.16 -opensource -nomake examples -nomake tests -openssl-linked -I C:/openssl/include -L C:/openssl/lib -qtlibinfix d -debug
+          ..\qt-everywhere-src-5.15.16\configure.bat -prefix C:\Qt\5.15.16 -opensource -nomake examples -nomake tests -qtlibinfix d -debug
           mingw32-make -j
           mingw32-make install
           cd ..
