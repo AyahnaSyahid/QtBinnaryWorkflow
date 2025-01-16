@@ -52,7 +52,7 @@ jobs:
         run: |
           echo "Check dir structure before extract tar.xz"
           dir
-          tar -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
+          "C:\Program Files\Git\usr\bin\tar.exe" -xvf qt-everywhere-opensource-src-5.15.16.tar.xz
           echo "Check dir structure before extract tar.xz"
           dir
 
@@ -75,7 +75,7 @@ jobs:
           wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz
           echo "Check dir structure after dld openssl"
           dir
-          tar -xvf openssl-1.1.1l.tar.gz
+          "C:\Program Files\Git\usr\bin\tar.exe" -xvf openssl-1.1.1l.tar.gz
           echo "Check dir structure after extract openssl"
           dir
 
