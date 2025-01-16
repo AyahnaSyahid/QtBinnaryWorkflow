@@ -92,7 +92,7 @@ jobs:
           dir
           mkdir qt-build-rel
           cd qt-build-rel
-          ..\qt-everywhere-src-5.15.16\configure.bat -prefix C:\Qt\5.15.16 -opensource -nomake examples -nomake tests  -platform win32-g++ -release
+          ..\qt-everywhere-src-5.15.16\configure.bat -prefix C:\Qt\5.15.16 -opensource -nomake examples -nomake tests -platform win32-g++ -release
           mingw32-make -j
           mingw32-make install
           cd ..
