@@ -42,7 +42,8 @@ jobs:
           tar -czvf openssl-windows-static.tar.gz -C openssl/install .
 
       - name: Upload OpenSSL Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OpenSSL-Static-Windows
           path: openssl-windows-static.tar.gz
+          compression-level: 0  # Gunakan 0 agar lebih cepat diunggah
