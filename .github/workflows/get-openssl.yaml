@@ -1,29 +1,48 @@
-name: Cache OpenSSL
+name: Build OpenSSL 3.x Static on Windows
 
 on:
-  workflow_dispatch:  # Trigger manually from GitHub UI
+  workflow_dispatch:  # Memungkinkan build manual dari GitHub Actions
 
 jobs:
-  cache-openssl:
+  build-openssl:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: |
-          choco install wget
-
-      - name: Cache OpenSSL
-        uses: actions/cache@v3
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
         with:
-          path: openssl-1.1.1l.tar.gz
-          key: openssl-1.1.1l
-          restore-keys: |
-            openssl-1.1.1l
+          msystem: MINGW64
+          install: >-
+            git base-devel
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-perl
+            mingw-w64-x86_64-nasm
 
-      - name: Download OpenSSL source
-        if: steps.cache-openssl.outputs.cache-hit != 'true'
+      - name: Download OpenSSL 3.x
+        shell: msys2 {0}
         run: |
-          wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz
+          git clone --depth=1 https://github.com/openssl/openssl.git
+          cd openssl
+          git checkout openssl-3.2.0  # Ganti dengan versi stabil terbaru jika ada
+
+      - name: Build OpenSSL Static
+        shell: msys2 {0}
+        run: |
+          cd openssl
+          perl Configure mingw64 no-shared no-zlib --prefix=$PWD/install
+          make -j$(nproc)
+          make install_sw  # Pada OpenSSL 3.x, gunakan "install_sw"
+
+      - name: Archive OpenSSL Build Artifacts
+        run: |
+          tar -czvf openssl-windows-static.tar.gz -C openssl/install .
+
+      - name: Upload OpenSSL Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: OpenSSL-Static-Windows
+          path: openssl-windows-static.tar.gz
