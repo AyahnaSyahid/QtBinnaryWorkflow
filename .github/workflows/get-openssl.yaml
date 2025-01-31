@@ -38,7 +38,7 @@ jobs:
         run: |
           cd openssl
           # Coba checkout ke tag yang valid
-          if git checkout tags/openssl-3.0.0 || git checkout tags/openssl-3.1.0; then
+          if git checkout tags/openssl-3.4.0 || git checkout tags/openssl-3.1.0; then
             echo "Berhasil checkout OpenSSL"
           else
             echo "Checkout gagal, coba lagi dengan tag yang valid"
