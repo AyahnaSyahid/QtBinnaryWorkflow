@@ -1,65 +1,78 @@
-name: Build OpenSSL Static on Windows
+name: Get and Build OpenSSL
 
 on:
-  workflow_dispatch:  # Memungkinkan build manual dari GitHub Actions
+  workflow_dispatch:
 
 jobs:
-  build-openssl:
+  get-openssl:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
-          install: >-
-            git base-devel
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-make
-            mingw-w64-x86_64-perl
-            mingw-w64-x86_64-nasm
+          update: true
+          install: git
 
-      - name: Clone OpenSSL Repository
+      - name: Clone OpenSSL repository
         shell: msys2 {0}
         run: |
-          # Menggunakan shell MSYS2 untuk menjalankan perintah git clone
-          if git clone --depth=1 https://github.com/openssl/openssl.git; then
-            echo "Git clone berhasil"
-          else
-            echo "Git clone gagal, keluar dari workflow"
-            exit 1
-          fi
+          git clone https://github.com/openssl/openssl.git
+          cd openssl
 
-      - name: Checkout OpenSSL Tag from origin
+      - name: Fetch all tags from OpenSSL repository
         shell: msys2 {0}
         run: |
           cd openssl
-          # Coba checkout ke tag dengan origin/ untuk memastikan tag remote
-          if git fetch --tags && git checkout origin/openssl-3.4.0 || git checkout origin/openssl-3.1.0; then
+          git fetch --tags
+
+      - name: Checkout OpenSSL tag (3.4.0 or 3.1.0)
+        shell: msys2 {0}
+        run: |
+          cd openssl
+          if git checkout openssl-3.4.0 || git checkout openssl-3.1.0; then
             echo "Berhasil checkout OpenSSL"
           else
             echo "Checkout gagal, coba lagi dengan tag yang valid"
             exit 1
           fi
 
-      - name: Build OpenSSL Static
+      - name: Verify OpenSSL version
         shell: msys2 {0}
         run: |
           cd openssl
-          perl Configure mingw64 no-shared no-zlib --prefix=$PWD/install
-          make -j$(nproc)
-          make install_sw  # Pada OpenSSL 3.x, gunakan "install_sw"
+          git describe --tags
 
-      - name: Archive OpenSSL Build Artifacts
+      - name: Build OpenSSL
+        shell: msys2 {0}
         run: |
-          tar -czvf openssl-windows-static.tar.gz -C openssl/install .
+          cd openssl
+          ./Configure
+          make
 
-      - name: Upload OpenSSL Build Artifacts
+      - name: Create artifacts directory
+        shell: msys2 {0}
+        run: |
+          mkdir -p openssl-artifacts
+
+      - name: Copy built files to artifacts directory
+        shell: msys2 {0}
+        run: |
+          cd openssl
+          cp -r include ../openssl-artifacts/
+          cp -r lib ../openssl-artifacts/
+          cp -r apps/openssl ../openssl-artifacts/
+
+      - name: Archive artifacts
+        shell: msys2 {0}
+        run: |
+          tar -czvf openssl-artifacts.tar.gz -C openssl-artifacts .
+
+      - name: Upload OpenSSL artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: OpenSSL-Static-Windows
-          path: openssl-windows-static.tar.gz
-          compression-level: 0  # Gunakan 0 agar lebih cepat diunggah
+          name: openssl-artifacts
+          path: openssl-artifacts.tar.gz
