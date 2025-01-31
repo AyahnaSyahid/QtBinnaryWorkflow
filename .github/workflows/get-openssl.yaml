@@ -1,4 +1,4 @@
-name: Build OpenSSL 3.x Static on Windows
+name: Build OpenSSL Static on Windows
 
 on:
   workflow_dispatch:  # Memungkinkan build manual dari GitHub Actions
@@ -8,6 +8,19 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Download OpenSSL 3.x
+        shell: msys2 {0}
+        run: |
+          git clone --depth=1 https://github.com/openssl/openssl.git
+          cd openssl
+          
+          # Coba checkout ke tag atau branch yang benar
+          if git checkout tags/openssl-3.0.0 || git checkout tags/openssl-3.1.0; then
+            echo "Berhasil checkout OpenSSL"
+          else
+            echo "Checkout gagal, coba lagi dengan tag atau branch yang valid"
+            exit 1
+          fi
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -21,22 +34,6 @@ jobs:
             mingw-w64-x86_64-make
             mingw-w64-x86_64-perl
             mingw-w64-x86_64-nasm
-
-      - name: Download OpenSSL 3.x (dengan beberapa opsi)
-        shell: msys2 {0}
-        run: |
-          git clone --depth=1 https://github.com/openssl/openssl.git
-          cd openssl
-          
-          # Coba beberapa opsi checkout hingga berhasil
-          for branch in openssl-3.2 openssl-3.2.0 openssl-3.1-stable openssl-3.1.4 openssl-3.0-stable; do
-            if git checkout $branch; then
-              echo "Berhasil checkout $branch"
-              break
-            else
-              echo "Gagal checkout $branch, mencoba opsi lain..."
-            fi
-          done
 
       - name: Build OpenSSL Static
         shell: msys2 {0}
