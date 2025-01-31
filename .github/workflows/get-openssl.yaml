@@ -27,7 +27,7 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/openssl/openssl.git
           cd openssl
-          git checkout openssl-3.2.0  # Ganti dengan versi stabil terbaru jika ada
+          git checkout openssl-3.2-stable  # Menggunakan branch yang benar
 
       - name: Build OpenSSL Static
         shell: msys2 {0}
