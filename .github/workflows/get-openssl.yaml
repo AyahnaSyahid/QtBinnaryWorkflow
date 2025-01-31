@@ -15,7 +15,10 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           update: true
-          install: git
+          install: >-
+            git
+            base-devel
+            mingw-w64-x86_64-toolchain
 
       - name: Clone OpenSSL repository
         shell: msys2 {0}
@@ -46,11 +49,11 @@ jobs:
           cd openssl
           git describe --tags
 
-      - name: Build OpenSSL
+      - name: Configure and Build OpenSSL
         shell: msys2 {0}
         run: |
           cd openssl
-          ./Configure
+          ./Configure mingw64
           make
 
       - name: Create artifacts directory
