@@ -33,12 +33,12 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout OpenSSL Tag
+      - name: Checkout OpenSSL Tag from origin
         shell: msys2 {0}
         run: |
           cd openssl
-          # Coba checkout ke tag yang valid seperti openssl-3.0.0 atau openssl-3.1.0
-          if git checkout tags/openssl-3.4.0 || git checkout tags/openssl-3.1.0; then
+          # Coba checkout ke tag dengan origin/ untuk memastikan tag remote
+          if git fetch --tags && git checkout origin/openssl-3.4.0 || git checkout origin/openssl-3.1.0; then
             echo "Berhasil checkout OpenSSL"
           else
             echo "Checkout gagal, coba lagi dengan tag yang valid"
