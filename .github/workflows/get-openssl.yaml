@@ -52,9 +52,11 @@ jobs:
       - name: Configure and Build OpenSSL
         shell: msys2 {0}
         run: |
-          cd openssl
-          ./Configure mingw64
-          make
+          mkdir openssl-build
+          mkdir openssl-static
+          cd openssl-build
+          ../openssl/Configure mingw64 -prefix="$((Get-Item .).Parent.FullName)/openssl-static"
+          make -j && make install_sw
 
       - name: Create artifacts directory
         shell: msys2 {0}
@@ -64,11 +66,8 @@ jobs:
       - name: Copy built files to artifacts directory
         shell: msys2 {0}
         run: |
-          cd openssl
-          cp -r include ../openssl-artifacts/
-          cp -r lib ../openssl-artifacts/
-          cp -r apps/openssl ../openssl-artifacts/
-
+          cp -r openssl-static ../openssl-artifacts/
+          
       - name: Archive artifacts
         shell: msys2 {0}
         run: |
