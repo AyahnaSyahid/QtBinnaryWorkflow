@@ -1,8 +1,7 @@
 name: Install Qt 6.8.3, Docs, and MinGW Tools with aqtinstall
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   install-qt:
