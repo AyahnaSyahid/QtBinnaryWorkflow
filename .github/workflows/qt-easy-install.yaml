@@ -1,7 +1,7 @@
 name: Install Qt 6.8.3, Docs, and MinGW Tools with aqtinstall
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   install-qt:
@@ -23,7 +23,7 @@ jobs:
       run: python -m aqt install-qt windows desktop 6.8.3 win64_mingw -O ${{ github.workspace }}/Qt
 
     - name: Install Qt 6.8.3 Documentation
-      run: python -m aqt install-doc windows 6.8.3 --autodesktop -O ${{ github.workspace }}/Qt
+      run: python -m aqt install-doc windows 6.8.3 -O ${{ github.workspace }}/Qt
 
     - name: Install MinGW Tools (qt.tools.win64_mingw1310)
       run: python -m aqt install-tool windows desktop qt.tools.win64_mingw1310 -O ${{ github.workspace }}/Qt
@@ -38,7 +38,7 @@ jobs:
       run: qmake --version
 
     - name: Verify MinGW Tools
-      run: gcc --version  # Should show MinGW 13.1.0
+      run: gcc --version
 
     - name: Zip Qt Installation
       run: Compress-Archive -Path "${{ github.workspace }}/Qt" -DestinationPath qt-install.zip
