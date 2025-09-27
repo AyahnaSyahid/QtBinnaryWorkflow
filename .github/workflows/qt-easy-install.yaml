@@ -26,7 +26,7 @@ jobs:
       run: python -m aqt install-doc windows 6.8.3 -O ${{ github.workspace }}/Qt
 
     - name: Install MinGW Tools (qt.tools.win64_mingw1310)
-      run: python -m aqt install-tool windows desktop qt.tools.win64_mingw1310 -O ${{ github.workspace }}/Qt
+      run: python -m aqt install-tool windows desktop tools_mingw1310 -O ${{ github.workspace }}/Qt
 
     - name: Add Qt and MinGW to PATH
       run: |
